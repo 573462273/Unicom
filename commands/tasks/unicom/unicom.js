@@ -461,7 +461,6 @@ var start = async (params) => {
     },
     taskOption
   );
-<<<<<<< HEAD
 
   // 首页-签到有礼-饿了么红包
   await scheduler.regTask(
@@ -471,22 +470,6 @@ var start = async (params) => {
     },
     taskOption
   );
-
-  //积分查询
-  await scheduler.regTask(
-    "fetchCoins",
-    async (request) => {
-      await require("./fetchCoins.js").doTask(request, options);
-    },
-    {
-      ...taskOption,
-      ...taskOption,
-      startTime: 21 * 3600,
-      ignoreRelay: true,
-    }
-  );
-=======
->>>>>>> parent of bd9ea98 (Update)
 };
 module.exports = {
   start,

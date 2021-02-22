@@ -1,14 +1,11 @@
 const {
   UnicomRequest,
-  UnicomComponent,
   generateOrderid,
   sleep,
   encodePhone,
 } = require("./handlers/gameUtils");
-let crypto = require("crypto");
 const gameEvents = require("./handlers/dailyEvent");
 const { sign } = require("./handlers/PAES");
-const { exit } = require("process");
 
 let dailyTurncards = {
   getOpenPlatLine: gameEvents.getOpenPlatLine(
@@ -23,51 +20,24 @@ let dailyTurncards = {
       ...cookies,
       phone,
     });
-<<<<<<< HEAD
-    //todo：判定40积分? 没找到API
-    try {
-      await dailyTurncards.doElementTask(axios, options, {
-        ...cookies,
-        phone,
-      });
-      await dailyTurncards.doMeituanTask(axios, options, {
-        ...cookies,
-        phone,
-      });
-    } catch (err) {
-      console.log(err);
-    }
-=======
->>>>>>> parent of bd9ea98 (Update)
+    await dailyTurncards.doElementTask(axios, options, {
+      ...cookies,
+      phone,
+    });
+    await dailyTurncards.doMeituanTask(axios, options, {
+      ...cookies,
+      phone,
+    });
   },
-  findUserTaskInfo: async (
-    axios,
-    options,
-    // eslint-disable-next-line no-unused-vars
-    { ecs_token, searchParams, jar1, phone }
-  ) => {
+  doMeituanTask: async (axios, options, { ecs_token, jar1, phone }) => {
     let request = new UnicomRequest(axios, options);
-    let { data } = await request.postMsmds(
-      "https://wxapp.msmds.cn/jplus/h5/unicomTask/findUserTaskInfo",
-      {
-        type: 1,
-        phone: phone,
-        token: ecs_token,
-      },
-      {
-        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
-        origin: "https://jxbwlsali.kuaizhan.com",
-      }
-    );
-    if (data.code !== 200) {
-      throw new Error("❌ something errors: ", data.msg);
-    }
-    console.log(data);
+    console.log("美团积分开始...");
     let result = await request.postMsmds(
-      "https://wxapp.msmds.cn/jplus/api/elm/eventVenue",
+      "https://wxapp.msmds.cn/jplus/h5/unicomComm/updateRecordOperation",
       {
+        key: "welfare1",
         phone: options.user,
-        code: "elm-ltqdzuanjifen",
+        value: 1,
       },
       {
         referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
@@ -75,24 +45,9 @@ let dailyTurncards = {
       }
     );
     if (result.data.code !== 200) {
-      throw new Error("❌ something errors: ", data.msg);
+      throw new Error("❌ something errors: ", result.data.msg);
     }
-    console.log(result.data);
-    result = await request.getMsmds(
-      `https://wxapp.msmds.cn/jplus/api/byn/getLifeCouponUrlByPhoneV2`,
-      {
-        type: 3,
-        phone: options.user,
-      },
-      {
-        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
-        origin: "https://jxbwlsali.kuaizhan.com",
-      }
-    );
-    if (result.data.code !== 200) {
-      throw new Error("❌ something errors: ", data.msg);
-    }
-    console.log(result.data);
+    console.log("获取操作");
     result = await request.postMsmds(
       "https://wxapp.msmds.cn/jplus/h5/unicomComm/getRecordOperation",
       {
@@ -106,49 +61,14 @@ let dailyTurncards = {
       }
     );
     if (result.data.code !== 200) {
-      throw new Error("❌ something errors: ", data.msg);
+      throw new Error("❌ something errors: ", result.data.msg);
     }
-    console.log(result.data);
     result = await request.postMsmds(
-      "https://wxapp.msmds.cn/jplus/h5/unicomComm/updateRecordOperation",
+      "https://wxapp.msmds.cn/jplus/h5/unicomComm/getRecordOperation",
       {
-        key: "welfare0",
+        key: "welfare1",
         phone: options.user,
-        value: 1,
-      },
-      {
-        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
-        origin: "https://jxbwlsali.kuaizhan.com",
-      }
-    );
-    if (result.data.code !== 200) {
-      throw new Error("❌ something errors: ", data.msg);
-    }
-    console.log(result.data);
-
-    result = await request.postMsmds(
-      "https://wxapp.msmds.cn/jplus/h5/unicomTask/doTask",
-      {
-        phone: phone,
-        type: 1,
-        token: ecs_token,
-      },
-      {
-        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
-        origin: "https://jxbwlsali.kuaizhan.com",
-      }
-    );
-
-    console.log(result.data);
-    if (result.data.code !== 200) {
-      throw new Error("❌ something errors: ", data.msg);
-    }
-    result = await request.postMsmds(
-      "https://wxapp.msmds.cn/jplus/h5/unicomTask/findUserTaskInfo",
-      {
-        type: 1,
-        phone: phone,
-        token: ecs_token,
+        value: 0,
       },
       {
         referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
@@ -158,28 +78,104 @@ let dailyTurncards = {
     if (result.data.code !== 200) {
       throw new Error("❌ something errors: ", result.data.msg);
     }
+    console.log("获取信息");
+    result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomTask/findUserTaskInfo",
+      {
+        phone: phone,
+        type: 1,
+        token: ecs_token,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+      }
+    );
+
+    // console.log(result.data);
+    if (result.data.code !== 200) {
+      throw new Error("❌ something errors: ", result.data.msg);
+    }
+    console.log("奖励开始");
+    result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomTask/doTask",
+      {
+        phone: phone,
+        type: 6,
+        token: ecs_token,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+        "Content-Type": "application/x-www-form-urlencoded",
+      }
+    );
+
+    // console.log(result.data);
+    if (result.data.code !== 200) {
+      throw new Error("❌ something errors: ", result.data.msg);
+    }
+    result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomTask/doTask",
+      {
+        phone: phone,
+        type: 6,
+        token: ecs_token,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+        "Content-Type": "application/x-www-form-urlencoded",
+      }
+    );
+
+    // console.log(result.data);
+    if (result.data.code !== 200) {
+      throw new Error("❌ something errors: ", result.data.msg);
+    }
+    console.log("开优惠券");
+    result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomTask/receiveDouling",
+      {
+        type: 6,
+        phone: phone,
+        token: ecs_token,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+      }
+    );
+    if (result.data.code !== 200) {
+      console.log("❌ something errors: ", result.data.msg);
+    }
     console.log(result.data);
-    // return data;
     let meituanParams = {
       arguments1: "AC20200716103629",
       arguments2: "GGPD",
-      arguments3: "034a70393ef246039264765216450d5d",
+      arguments3: "90d46c26212649788ed1dd14134d35e5",
       arguments4: new Date().getTime(),
-      arguments6: "",
+      arguments6: "517050707",
       netWay: "Wifi",
       version: `android@8.0102`,
     };
+    meituanParams["sign"] = sign([
+      meituanParams.arguments1,
+      meituanParams.arguments2,
+      meituanParams.arguments3,
+      meituanParams.arguments4,
+    ]);
     let { num, jar } = await require("./taskcallback").query(axios, {
       ...options,
       params: meituanParams,
     });
-    console.log(num);
+
     if (num) {
       console.log("美团积分获取开始...");
       let params = {
         arguments1: "AC20200716103629", // acid
         arguments2: "GGPD", // yhChannel
-        arguments3: "034a70393ef246039264765216450d5d", // yhTaskId menuId
+        arguments3: "90d46c26212649788ed1dd14134d35e5", // yhTaskId menuId
         arguments4: new Date().getTime(), // time
         arguments6: "517050707",
         arguments7: "517050707",
@@ -210,7 +206,7 @@ let dailyTurncards = {
       params = {
         arguments1: "AC20200716103629", // acid
         arguments2: "GGPD", // yhChannel
-        arguments3: "034a70393ef246039264765216450d5d", // yhTaskId menuId
+        arguments3: "90d46c26212649788ed1dd14134d35e5", // yhTaskId menuId
         arguments4: new Date().getTime(), // time
         arguments6: "",
         arguments7: "",
@@ -235,11 +231,21 @@ let dailyTurncards = {
         jar,
       });
     }
-    result = await request.getMsmds(
-      `https://wxapp.msmds.cn/jplus/api/byn/getLifeCouponUrlByPhoneV2`,
+  },
+  doElementTask: async (
+    axios,
+    options,
+    // eslint-disable-next-line no-unused-vars
+    { ecs_token, searchParams, jar1, phone }
+  ) => {
+    let request = new UnicomRequest(axios, options);
+    console.log("饿了么积分开始...");
+    let result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomComm/updateRecordOperation",
       {
-        type: 3,
+        key: "welfare0",
         phone: options.user,
+        value: 1,
       },
       {
         referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
@@ -247,7 +253,37 @@ let dailyTurncards = {
       }
     );
     if (result.data.code !== 200) {
-<<<<<<< HEAD
+      throw new Error("❌ something errors: ", result.data.msg);
+    }
+    console.log("获取操作");
+    result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomComm/getRecordOperation",
+      {
+        key: "welfare0",
+        phone: options.user,
+        value: 0,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+      }
+    );
+    if (result.data.code !== 200) {
+      throw new Error("❌ something errors: ", result.data.msg);
+    }
+    result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomComm/getRecordOperation",
+      {
+        key: "welfare1",
+        phone: options.user,
+        value: 0,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+      }
+    );
+    if (result.data.code !== 200) {
       throw new Error("❌ something errors: ", result.data.msg);
     }
     console.log("获取信息");
@@ -285,7 +321,24 @@ let dailyTurncards = {
 
     // console.log(result.data);
     if (result.data.code !== 200) {
-      throw new Error("❌ something errors: ", result.data);
+      throw new Error("❌ something errors: ", result.data.msg);
+    }
+    console.log("开优惠券");
+    result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomTask/receiveDouling",
+      {
+        type: 1,
+        phone: phone,
+        token: ecs_token,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+      }
+    );
+    // console.log(result.data);
+    if (result.data.code !== 200) {
+      console.log("❌ something errors: ", result.data.msg);
     }
     console.log("获取信息");
     result = await request.postMsmds(
@@ -302,31 +355,36 @@ let dailyTurncards = {
     );
     if (result.data.code !== 200) {
       throw new Error("❌ something errors: ", result.data.msg);
-=======
-      throw new Error("❌ something errors: ", data.msg);
->>>>>>> parent of bd9ea98 (Update)
     }
-    console.log(result.data);
+    // console.log(result.data);
+    // return data;
     let eleParams = {
       arguments1: "AC20200716103629",
       arguments2: "GGPD",
-      arguments3: "90d46c26212649788ed1dd14134d35e5",
+      arguments3: "034a70393ef246039264765216450d5d",
       arguments4: new Date().getTime(),
-      arguments6: "517050707",
-      netWay: "Wifi",
+      arguments6: "",
       version: `android@8.0102`,
+      netWay: "Wifi",
     };
-    let { num2, jar2 } = await require("./taskcallback").query(axios, {
+    eleParams["sign"] = sign([
+      eleParams.arguments1,
+      eleParams.arguments2,
+      eleParams.arguments3,
+      eleParams.arguments4,
+    ]);
+    console.log("查询奖励");
+    let { num, jar } = await require("./taskcallback").query(axios, {
       ...options,
       params: eleParams,
     });
-
-    if (num2) {
+    // console.log(num);
+    if (num) {
       console.log("饿了么积分获取开始...");
       let params = {
         arguments1: "AC20200716103629", // acid
         arguments2: "GGPD", // yhChannel
-        arguments3: "90d46c26212649788ed1dd14134d35e5", // yhTaskId menuId
+        arguments3: "034a70393ef246039264765216450d5d", // yhTaskId menuId
         arguments4: new Date().getTime(), // time
         arguments6: "517050707",
         arguments7: "517050707",
@@ -357,7 +415,7 @@ let dailyTurncards = {
       params = {
         arguments1: "AC20200716103629", // acid
         arguments2: "GGPD", // yhChannel
-        arguments3: "90d46c26212649788ed1dd14134d35e5", // yhTaskId menuId
+        arguments3: "034a70393ef246039264765216450d5d", // yhTaskId menuId
         arguments4: new Date().getTime(), // time
         arguments6: "",
         arguments7: "",
@@ -381,6 +439,59 @@ let dailyTurncards = {
         params,
         jar,
       });
+    }
+  },
+  findUserTaskInfo: async (
+    axios,
+    options,
+    // eslint-disable-next-line no-unused-vars
+    { ecs_token, searchParams, jar1, phone }
+  ) => {
+    let request = new UnicomRequest(axios, options);
+    console.log("查询接口");
+    let { data } = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/h5/unicomTask/findUserTaskInfo",
+      {
+        type: 1,
+        phone: phone,
+        token: ecs_token,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+      }
+    );
+    if (data.code !== 200) {
+      throw new Error("❌ something errors: ", data.msg);
+    }
+    console.log("获取优惠券");
+    let result = await request.postMsmds(
+      "https://wxapp.msmds.cn/jplus/api/elm/eventVenue",
+      {
+        phone: options.user,
+        code: "elm-ltqdzuanjifen",
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+      }
+    );
+    if (result.data.code !== 200) {
+      throw new Error("❌ something errors: ", data.msg);
+    }
+    result = await request.getMsmds(
+      `https://wxapp.msmds.cn/jplus/api/byn/getLifeCouponUrlByPhoneV2`,
+      {
+        type: 3,
+        phone: options.user,
+      },
+      {
+        referer: ` https://jxbwlsali.kuaizhan.com/0/51/p721841247bc5ac?phone=${options.user}`,
+        origin: "https://jxbwlsali.kuaizhan.com",
+      }
+    );
+    if (result.data.code !== 200) {
+      throw new Error("❌ something errors: ", data.msg);
     }
   },
 };
