@@ -461,6 +461,7 @@ var start = async (params) => {
     },
     taskOption
   );
+<<<<<<< HEAD
 
   // 首页-签到有礼-饿了么红包
   await scheduler.regTask(
@@ -484,6 +485,8 @@ var start = async (params) => {
       ignoreRelay: true,
     }
   );
+=======
+>>>>>>> parent of bd9ea98 (Update)
 };
 module.exports = {
   start,

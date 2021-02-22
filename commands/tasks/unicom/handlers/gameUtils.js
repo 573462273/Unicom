@@ -44,10 +44,7 @@ class UnicomRequest {
   async postMsmds(
     url,
     data,
-    headers = {
-      referer: null,
-      origin: null,
-    },
+    headers = { referer: null, origin: null },
     USER_AGENTS = null
   ) {
     return await this.axios.request({
