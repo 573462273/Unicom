@@ -259,11 +259,41 @@ let scheduler = {
           (selectedTasks.length && selectedTasks.indexOf(task.taskName) !== -1))
     );
 
+<<<<<<< HEAD
     switch (scheduler.getTaskStatus()) {
       case 1: {
         console.log(`👇 获取总任务数: ${selectedTasks.length}`);
         let currentTasks = [];
         selectedTasks.forEach((v) => {
+=======
+    console.log(
+      `👇 获取总任务数${taskJson.queues.length}，已完成任务数${
+        queues.filter((q) => q.taskState === 1).length
+      }，截至当前可执行任务数${will_tasks.length}`
+    );
+
+    if (will_tasks.length) {
+      //TODO: deprecated Cookies will be deleted on TryRun mode
+      // if (scheduler.isTryRun) {
+      //   console.log("👉 TryRun模式将清除CK操作");
+      //   await delCookiesFile([command, scheduler.taskKey].join("_"));
+      // }
+      // 初始化处理
+      if (process.env.GITHUB_ACTIONS) {
+        return;
+      }
+      let init_funcs = {};
+      let init_funcs_result = {};
+      for (let task of will_tasks) {
+        let ttt = tasks[task.taskName];
+        let tttOptions = ttt.options || {};
+        let savedCookies =
+          getCookies([command, scheduler.taskKey].join("_")) ||
+          tttOptions.cookies;
+        let request = _request(savedCookies);
+
+        if (tttOptions.init) {
+>>>>>>> parent of a5af020 (Update scheduler.js)
           if (
             tasks[v] !== undefined &&
             Object.prototype.toString.call(tasks[v]) == "[object Object]"
